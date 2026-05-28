@@ -40,7 +40,7 @@ export const api = {
 }
 
 // Poll a task until it reaches a terminal state
-export async function pollTask(taskId, onUpdate, intervalMs = 2000, maxAttempts = 30) {
+export async function pollTask(taskId, onUpdate, intervalMs = 3000, maxAttempts = 60) {
   let attempts = 0
   return new Promise((resolve, reject) => {
     const timer = setInterval(async () => {
