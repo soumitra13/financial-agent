@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Financial Compliance Agent — Project Guide</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --orange: #ffa657;
+    --teal: #39d353;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+  }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 32px 40px;
+    text-align: center;
+  }
+  header .badge {
+    display: inline-block;
+    background: rgba(88,166,255,0.15);
+    border: 1px solid rgba(88,166,255,0.4);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  header h1 {
+    font-size: 42px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #58a6ff, #bc8cff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+  }
+  header p {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,17,23,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    padding: 0 32px;
+  }
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 14px 18px;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  nav a:hover, nav a.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* ── Layout ── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+  section { padding: 64px 0; border-bottom: 1px solid var(--border); }
+  section:last-child { border-bottom: none; }
+
+  h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  h2 .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 24px 0 10px;
+    color: var(--accent);
+  }
+  p { color: var(--muted); margin-bottom: 12px; }
+  p strong { color: var(--text); }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .card-grid .card { margin-bottom: 0; }
+  .card .card-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+  }
+  .card h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .card p { font-size: 14px; margin: 0; }
+
+  /* ── Code blocks ── */
+  pre {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 16px 0;
+  }
+  code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; }
+  .inline-code {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 12px;
+    color: var(--orange);
+  }
+
+  /* ── Syntax highlight helpers ── */
+  .kw { color: #ff7b72; }
+  .str { color: #a5d6ff; }
+  .cm { color: #8b949e; font-style: italic; }
+  .fn { color: #d2a8ff; }
+  .num { color: #79c0ff; }
+  .key { color: #ffa657; }
+
+  /* ── Tags ── */
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 2px 10px;
+    border-radius: 20px;
+    margin-right: 6px;
+    margin-bottom: 4px;
+  }
+  .tag-blue  { background: rgba(88,166,255,0.15); color: #58a6ff; border: 1px solid rgba(88,166,255,0.3); }
+  .tag-green { background: rgba(63,185,80,0.15);  color: #3fb950; border: 1px solid rgba(63,185,80,0.3); }
+  .tag-red   { background: rgba(248,81,73,0.15);  color: #f85149; border: 1px solid rgba(248,81,73,0.3); }
+  .tag-purple{ background: rgba(188,140,255,0.15);color: #bc8cff; border: 1px solid rgba(188,140,255,0.3); }
+  .tag-orange{ background: rgba(255,166,87,0.15); color: #ffa657; border: 1px solid rgba(255,166,87,0.3); }
+
+  /* ── Architecture SVG wrapper ── */
+  .arch-wrapper {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-top: 24px;
+  }
+
+  /* ── Flow steps ── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 24px;
+    position: relative;
+  }
+  .flow::before {
+    content: '';
+    position: absolute;
+    left: 22px;
+    top: 44px;
+    bottom: 44px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--purple));
+    border-radius: 2px;
+  }
+  .flow-step {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 16px 0;
+    position: relative;
+  }
+  .flow-step .num {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--accent);
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .flow-step .body { flex: 1; padding-top: 8px; }
+  .flow-step .body strong { color: var(--text); font-size: 16px; display: block; margin-bottom: 4px; }
+  .flow-step .body span { color: var(--muted); font-size: 14px; }
+
+  /* ── Rule cards ── */
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .rule-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .rule-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .rule-card.red::before   { background: var(--red); }
+  .rule-card.yellow::before{ background: var(--yellow); }
+  .rule-card.orange::before{ background: var(--orange); }
+  .rule-card.purple::before{ background: var(--purple); }
+  .rule-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .rule-card p  { font-size: 13px; margin: 0; }
+
+  /* ── API endpoint table ── */
+  .ep-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 14px;
+  }
+  .ep-table th {
+    text-align: left;
+    padding: 10px 14px;
+    background: var(--surface2);
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .ep-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .ep-table tr:last-child td { border-bottom: none; }
+  .method {
+    font-family: 'SF Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .method-get  { background: rgba(63,185,80,0.2);  color: #3fb950; }
+  .method-post { background: rgba(88,166,255,0.2); color: #58a6ff; }
+
+  /* ── Stack pill row ── */
+  .stack-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .stack-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .stack-pill .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Make commands ── */
+  .make-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .make-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .make-item code { color: var(--green); display: block; margin-bottom: 4px; font-size: 14px; }
+  .make-item span { color: var(--muted); font-size: 13px; }
+
+  /* ── Phase timeline ── */
+  .timeline {
+    position: relative;
+    margin-top: 24px;
+    padding-left: 32px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 24px;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    top: 6px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--bg);
+  }
+  .tl-item strong { color: var(--accent); font-size: 15px; }
+  .tl-item p { margin: 4px 0 0; font-size: 14px; }
+
+  /* ── Alert box ── */
+  .alert {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 8px;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  .alert-tip  { background: rgba(63,185,80,0.1);  border: 1px solid rgba(63,185,80,0.3);  color: #3fb950; }
+  .alert-warn { background: rgba(210,153,34,0.1); border: 1px solid rgba(210,153,34,0.3); color: #d29922; }
+  .alert-info { background: rgba(88,166,255,0.1); border: 1px solid rgba(88,166,255,0.3); color: #58a6ff; }
+  .alert p { color: inherit; margin: 0; }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 40px 32px;
+    color: var(--muted);
+    font-size: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Production AI System</div>
+  <h1>Financial Compliance Agent</h1>
+  <p>A production-grade AI agent that autonomously analyses financial transactions,
+     detects anomalies, retrieves compliance policies, and produces structured reports —
+     all running in Docker with a single command.</p>
+</header>
+
+<nav id="nav">
+  <a href="#what" class="active">What It Does</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#flow">Request Flow</a>
+  <a href="#components">Components</a>
+  <a href="#guardrails">Guardrails</a>
+  <a href="#api">API Reference</a>
+  <a href="#quickstart">Quick Start</a>
+  <a href="#stack">Tech Stack</a>
+  <a href="#phases">Build Phases</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════ WHAT -->
+<section id="what">
+  <div class="container">
+    <h2><span class="step-num">?</span>What This Project Does</h2>
+    <p>You submit a plain-English task like <em>"Review recent transactions for account ACC-0042 and flag any compliance issues."</em>
+       The system handles everything from there — no human in the loop.</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <h4>Fetches Real Data</h4>
+        <p>Queries PostgreSQL for the account's recent transactions, balance history, and customer profile.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h4>Detects Anomalies in Python</h4>
+        <p>A deterministic rules engine runs <em>before</em> the LLM — catching structuring, velocity spikes, geographic risk, and large transactions with real database UUIDs.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📚</div>
+        <h4>Retrieves Compliance Policies</h4>
+        <p>Searches a vector store of compliance documents (AML thresholds, velocity checks, geographic risk rules) using semantic similarity — this is RAG.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🤖</div>
+        <h4>LLM Writes the Narrative</h4>
+        <p>The LLM only writes the explanation. It cannot invent transaction IDs because the rules engine already found the real ones and injected them into context.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🚨</div>
+        <h4>Auto-Escalates Critical Cases</h4>
+        <p>Critical or high-severity anomalies are automatically written to an escalations table for the compliance team to review.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📋</div>
+        <h4>Full Audit Trail</h4>
+        <p>Every tool call, LLM decision, and guardrail check is recorded in an audit log with timestamps and step numbers.</p>
+      </div>
+    </div>
+
+    <div class="alert alert-info" style="margin-top:24px;">
+      <p>💡 <strong>The dashboard and /metrics are the monitoring layer.</strong>
+         The real output is the structured compliance report stored in the <code>tasks</code> table,
+         accessible via <code>GET /tasks/{id}</code>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════ ARCHITECTURE -->
+<section id="architecture">
+  <div class="container">
+    <h2><span class="step-num">1</span>System Architecture</h2>
+    <p>Four Docker containers work together. The API accepts requests immediately and delegates heavy work to the worker via Redis Streams.</p>
+
+    <div class="arch-wrapper">
+      <svg viewBox="0 0 900 480" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#58a6ff"/>
+          </marker>
+          <marker id="arr-g" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#3fb950"/>
+          </marker>
+          <marker id="arr-p" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#bc8cff"/>
+          </marker>
+        </defs>
+
+        <!-- Background -->
+        <rect width="900" height="480" fill="#161b22"/>
+
+        <!-- Docker compose boundary -->
+        <rect x="180" y="20" width="700" height="440" rx="12" fill="none" stroke="#30363d" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <text x="195" y="40" fill="#8b949e" font-size="11" font-family="monospace">docker-compose</text>
+
+        <!-- Client -->
+        <rect x="20" y="190" width="130" height="60" rx="8" fill="#21262d" stroke="#58a6ff" stroke-width="1.5"/>
+        <text x="85" y="215" fill="#e6edf3" font-size="13" font-weight="600" text-anchor="middle">Client</text>
+        <text x="85" y="232" fill="#8b949e" font-size="11" text-anchor="middle">curl / app</text>
+
+        <!-- API -->
+        <rect x="215" y="170" width="150" height="100" rx="8" fill="#21262d" stroke="#58a6ff" stroke-width="2"/>
+        <text x="290" y="205" fill="#58a6ff" font-size="13" font-weight="700" text-anchor="middle">FastAPI</text>
+        <text x="290" y="222" fill="#e6edf3" font-size="12" text-anchor="middle">API Server</text>
+        <text x="290" y="238" fill="#8b949e" font-size="10" text-anchor="middle">:8000</text>
+        <text x="290" y="255" fill="#8b949e" font-size="10" text-anchor="middle">/tasks  /health  /metrics</text>
+
+        <!-- Redis -->
+        <rect x="420" y="170" width="130" height="100" rx="8" fill="#21262d" stroke="#f85149" stroke-width="1.5"/>
+        <text x="485" y="205" fill="#f85149" font-size="13" font-weight="700" text-anchor="middle">Redis</text>
+        <text x="485" y="222" fill="#e6edf3" font-size="12" text-anchor="middle">Streams</text>
+        <text x="485" y="238" fill="#8b949e" font-size="10" text-anchor="middle">:6379</text>
+        <text x="485" y="255" fill="#8b949e" font-size="10" text-anchor="middle">task queue</text>
+
+        <!-- Worker -->
+        <rect x="615" y="170" width="150" height="100" rx="8" fill="#21262d" stroke="#bc8cff" stroke-width="2"/>
+        <text x="690" y="205" fill="#bc8cff" font-size="13" font-weight="700" text-anchor="middle">Worker</text>
+        <text x="690" y="222" fill="#e6edf3" font-size="12" text-anchor="middle">Agent Loop</text>
+        <text x="690" y="238" fill="#8b949e" font-size="10" text-anchor="middle">pre_analyzer</text>
+        <text x="690" y="255" fill="#8b949e" font-size="10" text-anchor="middle">LLM · guardrails</text>
+
+        <!-- Postgres -->
+        <rect x="350" y="340" width="150" height="90" rx="8" fill="#21262d" stroke="#3fb950" stroke-width="1.5"/>
+        <text x="425" y="375" fill="#3fb950" font-size="13" font-weight="700" text-anchor="middle">PostgreSQL</text>
+        <text x="425" y="392" fill="#e6edf3" font-size="12" text-anchor="middle">+ pgvector</text>
+        <text x="425" y="408" fill="#8b949e" font-size="10" text-anchor="middle">:5432</text>
+        <text x="425" y="420" fill="#8b949e" font-size="10" text-anchor="middle">tasks · policies · audit</text>
+
+        <!-- Ollama (external) -->
+        <rect x="615" y="340" width="150" height="90" rx="8" fill="#21262d" stroke="#ffa657" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <text x="690" y="372" fill="#ffa657" font-size="13" font-weight="700" text-anchor="middle">Ollama / OpenAI</text>
+        <text x="690" y="389" fill="#e6edf3" font-size="12" text-anchor="middle">LLM Provider</text>
+        <text x="690" y="410" fill="#8b949e" font-size="10" text-anchor="middle">host.docker.internal</text>
+        <text x="690" y="425" fill="#8b949e" font-size="9" text-anchor="middle">(external — dashed border)</text>
+
+        <!-- Arrows: client → api -->
+        <line x1="152" y1="220" x2="213" y2="220" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="163" y="213" fill="#58a6ff" font-size="9">POST</text>
+        <!-- api → client (return) -->
+        <line x1="213" y1="232" x2="152" y2="232" stroke="#8b949e" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="160" y="247" fill="#8b949e" font-size="9">task_id</text>
+
+        <!-- api → redis -->
+        <line x1="367" y1="220" x2="418" y2="220" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="373" y="213" fill="#58a6ff" font-size="9">publish</text>
+
+        <!-- redis → worker -->
+        <line x1="552" y1="220" x2="613" y2="220" stroke="#bc8cff" stroke-width="1.5" marker-end="url(#arr-p)"/>
+        <text x="557" y="213" fill="#bc8cff" font-size="9">consume</text>
+
+        <!-- api → postgres -->
+        <line x1="290" y1="272" x2="380" y2="338" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr-g)"/>
+        <text x="298" y="315" fill="#3fb950" font-size="9">read / write</text>
+
+        <!-- worker → postgres -->
+        <line x1="690" y1="272" x2="503" y2="338" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr-g)"/>
+        <text x="593" y="315" fill="#3fb950" font-size="9">write results</text>
+
+        <!-- worker → ollama -->
+        <line x1="690" y1="272" x2="690" y2="338" stroke="#ffa657" stroke-width="1.5" marker-end="url(#arr)"/>
+        <text x="696" y="312" fill="#ffa657" font-size="9">LLM calls</text>
+
+        <!-- Legend -->
+        <rect x="196" y="450" width="686" height="1" fill="#30363d"/>
+        <circle cx="220" cy="468" r="4" fill="#58a6ff"/><text x="228" y="472" fill="#8b949e" font-size="10">HTTP / API</text>
+        <circle cx="300" cy="468" r="4" fill="#bc8cff"/><text x="308" y="472" fill="#8b949e" font-size="10">Stream events</text>
+        <circle cx="400" cy="468" r="4" fill="#3fb950"/><text x="408" y="472" fill="#8b949e" font-size="10">Database</text>
+        <circle cx="472" cy="468" r="4" fill="#ffa657"/><text x="480" y="472" fill="#8b949e" font-size="10">LLM (external)</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════ FLOW -->
+<section id="flow">
+  <div class="container">
+    <h2><span class="step-num">2</span>Request Flow — Step by Step</h2>
+    <p>What happens from the moment you POST a task to when the result is ready.</p>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="num">1</div>
+        <div class="body">
+          <strong>POST /tasks → FastAPI</strong>
+          <span>You send <code class="inline-code">{"account_id": "ACC-0001", "description": "Review recent transactions..."}</code>. The API creates a task row in Postgres (status: <em>pending</em>) and publishes a message to a Redis Stream. It returns the <code class="inline-code">task_id</code> immediately — it does <em>not</em> wait for the agent to finish.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">2</div>
+        <div class="body">
+          <strong>Worker consumes the stream message</strong>
+          <span>The background worker process is always listening to the Redis Stream. It picks up the message, updates the task status to <em>running</em>, and starts the agent loop.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">3</div>
+        <div class="body">
+          <strong>Pre-Analyzer runs first (Python rules engine)</strong>
+          <span>Before touching the LLM, the agent calls <code class="inline-code">get_account_transactions</code> and passes the results through the Python pre-analyzer. It runs 4 deterministic rules and produces findings with real database UUIDs — structuring, velocity, geographic risk, large amounts.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">4</div>
+        <div class="body">
+          <strong>Findings are injected into the LLM context</strong>
+          <span>The pre-analyzer findings are formatted as a structured summary and injected into the conversation as a user message before the LLM is called. The LLM cannot invent IDs because the real ones are already in the context.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">5</div>
+        <div class="body">
+          <strong>RAG retrieves relevant compliance policies</strong>
+          <span>The agent calls <code class="inline-code">search_compliance_policies</code>. It generates a vector embedding of the query and runs a cosine similarity search against the policies stored in pgvector, returning the top matching policy chunks.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">6</div>
+        <div class="body">
+          <strong>LLM writes the narrative</strong>
+          <span>With real anomaly findings, real transaction IDs, and real policy excerpts all in context, the LLM writes the compliance narrative and produces a structured JSON final answer. Temperature is 0 for determinism.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">7</div>
+        <div class="body">
+          <strong>Output is validated and saved</strong>
+          <span>The output validator confirms the JSON structure is correct (Pydantic). Critical anomalies are auto-escalated to the <code class="inline-code">escalations</code> table. The full result is saved to the task row. Every step is recorded in <code class="inline-code">audit_log</code>.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="num">8</div>
+        <div class="body">
+          <strong>Poll GET /tasks/{id}</strong>
+          <span>You poll the endpoint until status is <em>completed</em>. The response contains the full structured report including anomaly list, severity ratings, policy references, and narrative summary.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════ COMPONENTS -->
+<section id="components">
+  <div class="container">
+    <h2><span class="step-num">3</span>Key Components</h2>
+
+    <h3>Agent Loop (<code class="inline-code">src/agent/loop.py</code>)</h3>
+    <p>The core reasoning engine. Runs up to 8 tool-call steps. Each step is logged to <code class="inline-code">audit_log</code> with timing. It injects real transaction IDs as an anchor message so the LLM cannot hallucinate values.</p>
+
+    <h3>Pre-Analyzer (<code class="inline-code">src/agent/pre_analyzer.py</code>)</h3>
+    <p>Deterministic Python rules that run before the LLM. Returns structured findings with guaranteed real database UUIDs. This is the primary anti-hallucination mechanism.</p>
+
+    <div class="rules-grid">
+      <div class="rule-card red">
+        <h4>🏗 Structuring Detection</h4>
+        <p>Flags transactions between $8,000–$9,999 — classic "smurfing" to stay just under the $10K reporting threshold.</p>
+      </div>
+      <div class="rule-card orange">
+        <h4>⚡ Velocity Check</h4>
+        <p>More than 5 transactions within any 24-hour sliding window on the same account.</p>
+      </div>
+      <div class="rule-card purple">
+        <h4>🌍 Geographic Risk</h4>
+        <p>Transfers to high-risk country codes: NG, IR, KP, SY, CU, MM, BY.</p>
+      </div>
+      <div class="rule-card yellow">
+        <h4>💰 Large Amount</h4>
+        <p>Single transaction exceeding 3× the account's median transaction amount.</p>
+      </div>
+    </div>
+
+    <h3>RAG Pipeline (<code class="inline-code">src/rag/</code>)</h3>
+    <p>Compliance policy markdown files are chunked, embedded via Ollama's <code class="inline-code">all-minilm</code> model, and stored as vectors in PostgreSQL with the <strong>pgvector</strong> extension. At query time, the agent's question is embedded and the closest policy chunks are returned via cosine similarity search.</p>
+
+    <h3>Tool Registry (<code class="inline-code">src/tools/registry.py</code>)</h3>
+    <p>All tools the LLM can call are defined here with JSON Schema descriptions. The agent loop dispatches tool calls to real async Python functions that query the database.</p>
+
+    <pre><code><span class="cm">// Tools available to the LLM agent:</span>
+<span class="str">"get_account_transactions"</span>   <span class="cm">→ fetch last N transactions for an account</span>
+<span class="str">"get_account_details"</span>        <span class="cm">→ account balance, risk tier, customer name</span>
+<span class="str">"search_compliance_policies"</span> <span class="cm">→ RAG search against pgvector policy store</span>
+<span class="str">"get_flagged_transactions"</span>   <span class="cm">→ transactions already flagged as anomalies</span></code></pre>
+
+    <h3>Events System (<code class="inline-code">src/events/</code>)</h3>
+    <p>The API and worker communicate via <strong>Redis Streams</strong> — a persistent, ordered message log. The producer appends task messages; the consumer reads them with a consumer group so no message is ever lost even if the worker crashes.</p>
+
+    <h3>LLM Adapter (<code class="inline-code">src/llm/adapter.py</code>)</h3>
+    <p>A unified interface supporting both <strong>Ollama</strong> (local, free) and <strong>OpenAI</strong> (cloud, faster). Switch between them by changing <code class="inline-code">LLM_PROVIDER</code> in <code class="inline-code">.env.docker</code> — no code changes needed.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════ GUARDRAILS -->
+<section id="guardrails">
+  <div class="container">
+    <h2><span class="step-num">4</span>Guardrails &amp; Safety</h2>
+    <p>Five layers of protection wrap every agent execution, enforced in <code class="inline-code">src/guardrails/</code>.</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>🔒 Tool Allowlist</h4>
+        <span class="tag tag-blue">allowlist.py</span>
+        <p style="margin-top:10px;">Enforces read-before-write ordering. The agent cannot call <code class="inline-code">flag_anomaly</code> without first calling <code class="inline-code">get_account_transactions</code>. Prevents blind writes.</p>
+      </div>
+      <div class="card">
+        <h4>⏱ Rate Limiter</h4>
+        <span class="tag tag-orange">rate_limiter.py</span>
+        <p style="margin-top:10px;">Caps write operations per task (max 5 anomaly flags, 3 policy searches). Prevents runaway agents from flooding the database.</p>
+      </div>
+      <div class="card">
+        <h4>🕵️ PII Scrubber</h4>
+        <span class="tag tag-purple">pii_scrubber.py</span>
+        <p style="margin-top:10px;">Strips SSNs, credit card numbers, phone numbers, and email addresses from data before it is sent to the LLM. Regex + length-gated for performance.</p>
+      </div>
+      <div class="card">
+        <h4>✅ Output Validator</h4>
+        <span class="tag tag-green">output_validator.py</span>
+        <p style="margin-top:10px;">Validates the LLM's final JSON answer against a Pydantic schema before saving. If the schema doesn't match, the agent sends a correction request.</p>
+      </div>
+      <div class="card">
+        <h4>🚨 Escalation Handler</h4>
+        <span class="tag tag-red">escalation.py</span>
+        <p style="margin-top:10px;">Critical and high-severity anomalies are automatically written to the <code class="inline-code">escalations</code> table for the compliance team. Viewable at <code class="inline-code">GET /tasks/escalations/open</code>.</p>
+      </div>
+    </div>
+
+    <h3>Anti-Hallucination Architecture</h3>
+    <p>The system uses a <strong>hybrid approach</strong> to prevent the LLM from inventing data:</p>
+    <pre><code><span class="num">1.</span> <span class="key">Python rules engine detects anomalies</span> → real UUIDs guaranteed
+<span class="num">2.</span> <span class="key">Findings injected into LLM context</span>   → LLM only writes narrative
+<span class="num">3.</span> <span class="key">ID anchor message sent after fetch</span>    → lists every valid transaction ID
+<span class="num">4.</span> <span class="key">Temperature = 0</span>                        → no creative freedom
+<span class="num">5.</span> <span class="key">Output validator checks IDs</span>           → rejects any invented values</code></pre>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════== API -->
+<section id="api">
+  <div class="container">
+    <h2><span class="step-num">5</span>API Reference</h2>
+
+    <table class="ep-table">
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Endpoint</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="method method-post">POST</span></td>
+          <td><code>/tasks</code></td>
+          <td>Submit a new analysis task. Returns <code>task_id</code> immediately.</td>
+        </tr>
+        <tr>
+          <td><span class="method method-get">GET</span></td>
+          <td><code>/tasks/{id}</code></td>
+          <td>Poll for task status and result. Status: pending → running → completed.</td>
+        </tr>
+        <tr>
+          <td><span class="method method-get">GET</span></td>
+          <td><code>/tasks/{id}/audit</code></td>
+          <td>Full audit trail — every tool call and LLM step with timing.</td>
+        </tr>
+        <tr>
+          <td><span class="method method-get">GET</span></td>
+          <td><code>/tasks/escalations/open</code></td>
+          <td>All open (unresolved) critical escalations, sorted by severity.</td>
+        </tr>
+        <tr>
+          <td><span class="method method-get">GET</span></td>
+          <td><code>/health</code></td>
+          <td>Health check — confirms database connectivity and environment.</td>
+        </tr>
+        <tr>
+          <td><span class="method method-get">GET</span></td>
+          <td><code>/metrics</code></td>
+          <td>Prometheus metrics (task counts, anomaly breakdown, LLM calls).</td>
+        </tr>
+        <tr>
+          <td><span class="method method-get">GET</span></td>
+          <td><code>/dashboard</code></td>
+          <td>HTML dashboard showing recent tasks and open escalations. Auto-refreshes every 30s.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Example: Submit a Task</h3>
+    <pre><code><span class="kw">curl</span> -s -X POST http://localhost:8000/tasks \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d <span class="str">'{"account_id": "ACC-0001", "description": "Review recent transactions and flag anomalies"}'</span> \
+  | python3 -m json.tool</code></pre>
+
+    <h3>Example Response</h3>
+    <pre><code>{
+  <span class="key">"task_id"</span>: <span class="str">"018f2a4b-3c1d-7e8f-9a0b-1c2d3e4f5a6b"</span>,
+  <span class="key">"status"</span>:  <span class="str">"pending"</span>,
+  <span class="key">"message"</span>: <span class="str">"Task queued — poll GET /tasks/{id} for status and result"</span>
+}</code></pre>
+
+    <h3>Example: Get Result</h3>
+    <pre><code><span class="kw">curl</span> -s http://localhost:8000/tasks/<span class="str">"018f2a4b-3c1d-7e8f-9a0b-1c2d3e4f5a6b"</span> \
+  | python3 -m json.tool</code></pre>
+
+    <pre><code>{
+  <span class="key">"id"</span>: <span class="str">"018f2a4b-..."</span>,
+  <span class="key">"status"</span>: <span class="str">"completed"</span>,
+  <span class="key">"result"</span>: {
+    <span class="key">"anomalies"</span>: [
+      {
+        <span class="key">"transaction_id"</span>: <span class="str">"a1b2c3d4-..."</span>,  <span class="cm">// real DB UUID from pre-analyzer</span>
+        <span class="key">"type"</span>:           <span class="str">"structuring"</span>,
+        <span class="key">"severity"</span>:      <span class="str">"high"</span>,
+        <span class="key">"amount"</span>:        <span class="num">9450.00</span>,
+        <span class="key">"explanation"</span>:   <span class="str">"Transaction of $9,450 falls within..."</span>
+      }
+    ],
+    <span class="key">"summary"</span>:     <span class="str">"Account ACC-0001 shows 2 anomalies requiring review..."</span>,
+    <span class="key">"risk_level"</span>:  <span class="str">"high"</span>,
+    <span class="key">"policies_cited"</span>: [<span class="str">"AML Structuring Thresholds § 3.1"</span>]
+  },
+  <span class="key">"total_steps"</span>: <span class="num">5</span>
+}</code></pre>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════ QUICKSTART -->
+<section id="quickstart">
+  <div class="container">
+    <h2><span class="step-num">6</span>Quick Start</h2>
+
+    <h3>Prerequisites</h3>
+    <div class="stack-row">
+      <div class="stack-pill"><span class="dot" style="background:#2496ed"></span>Docker Desktop</div>
+      <div class="stack-pill"><span class="dot" style="background:#ffa657"></span>Ollama (or OpenAI key)</div>
+      <div class="stack-pill"><span class="dot" style="background:#3fb950"></span>Make</div>
+      <div class="stack-pill"><span class="dot" style="background:#58a6ff"></span>Git</div>
+    </div>
+
+    <h3>1 — Clone &amp; Configure</h3>
+    <pre><code><span class="kw">git clone</span> https://github.com/your-org/financial-agent-system
+<span class="kw">cd</span> financial-agent-system
+
+<span class="cm"># .env.docker is pre-configured for Ollama</span>
+<span class="cm"># To use OpenAI instead, edit .env.docker:</span>
+<span class="cm">#   LLM_PROVIDER=openai</span>
+<span class="cm">#   OPENAI_API_KEY=sk-...</span></code></pre>
+
+    <h3>2 — Pull the embedding model (Ollama only)</h3>
+    <pre><code>ollama pull all-minilm   <span class="cm"># for policy embeddings</span>
+ollama pull llama3.2:3b  <span class="cm"># for the agent LLM</span></code></pre>
+
+    <h3>3 — Build &amp; Launch</h3>
+    <pre><code><span class="kw">make build</span>   <span class="cm"># builds Docker images</span>
+<span class="kw">make up</span>      <span class="cm"># starts postgres, redis, api, worker</span>
+<span class="kw">make seed</span>    <span class="cm"># seeds 50 accounts, 5000 transactions, policy embeddings</span></code></pre>
+
+    <h3>4 — Submit Your First Task</h3>
+    <pre><code><span class="cm"># Submit</span>
+<span class="kw">curl</span> -s -X POST http://localhost:8000/tasks \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d <span class="str">'{"account_id":"ACC-0001","description":"Review transactions and flag anomalies"}'</span>
+
+<span class="cm"># Poll (replace with your task_id)</span>
+<span class="kw">curl</span> -s http://localhost:8000/tasks/&lt;task-id&gt; | python3 -m json.tool</code></pre>
+
+    <div class="alert alert-tip">
+      <p>✅ Open <strong>http://localhost:8000/dashboard</strong> to watch tasks process in real time.</p>
+    </div>
+
+    <h3>Make Commands</h3>
+    <div class="make-grid">
+      <div class="make-item"><code>make up</code><span>Start all services</span></div>
+      <div class="make-item"><code>make down</code><span>Stop all containers</span></div>
+      <div class="make-item"><code>make build</code><span>Rebuild Docker images</span></div>
+      <div class="make-item"><code>make seed</code><span>Seed accounts + policies</span></div>
+      <div class="make-item"><code>make logs</code><span>Follow all logs</span></div>
+      <div class="make-item"><code>make logs-api</code><span>API logs only</span></div>
+      <div class="make-item"><code>make logs-w</code><span>Worker logs only</span></div>
+      <div class="make-item"><code>make shell</code><span>Shell into API container</span></div>
+      <div class="make-item"><code>make test</code><span>Run full test suite</span></div>
+      <div class="make-item"><code>make ps</code><span>Show container status</span></div>
+      <div class="make-item"><code>make clean</code><span>Wipe all volumes + data</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════ STACK -->
+<section id="stack">
+  <div class="container">
+    <h2><span class="step-num">7</span>Technology Stack</h2>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>🐍 Python 3.14</h4>
+        <p><strong>FastAPI</strong> for the async HTTP API. <strong>asyncpg</strong> for non-blocking Postgres queries. <strong>Pydantic v2</strong> for schema validation everywhere.</p>
+      </div>
+      <div class="card">
+        <h4>🐘 PostgreSQL 17 + pgvector</h4>
+        <p>Primary datastore for tasks, transactions, audit logs, escalations. The <strong>pgvector</strong> extension adds cosine similarity search for RAG policy retrieval.</p>
+      </div>
+      <div class="card">
+        <h4>⚡ Redis Streams</h4>
+        <p>Durable, ordered message queue between the API and worker. Consumer groups ensure exactly-once delivery even if the worker restarts.</p>
+      </div>
+      <div class="card">
+        <h4>🦙 Ollama / OpenAI</h4>
+        <p><strong>Ollama</strong> runs LLMs locally (llama3.2:3b) — free, private. Switch to <strong>OpenAI gpt-4o-mini</strong> for production quality with a single env var change.</p>
+      </div>
+      <div class="card">
+        <h4>🐳 Docker Compose</h4>
+        <p>Four-container setup with health checks, depends_on conditions, non-root security, and volume persistence. One command to launch everything.</p>
+      </div>
+      <div class="card">
+        <h4>📊 Prometheus Metrics</h4>
+        <p>DB-backed metrics endpoint (not in-process counters) so the API and worker share the same numbers. Plug into Grafana for dashboards.</p>
+      </div>
+      <div class="card">
+        <h4>🧪 pytest</h4>
+        <p>71 tests across unit and integration suites. Covers pre-analyzer rules, all 5 guardrails, API endpoints, and edge cases.</p>
+      </div>
+      <div class="card">
+        <h4>📝 Structured Logging</h4>
+        <p>JSON log output with bound context (task_id, step, tool). Ready to ship to any log aggregation system (Datadog, Loki, CloudWatch).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════ PHASES -->
+<section id="phases">
+  <div class="container">
+    <h2><span class="step-num">8</span>How It Was Built — Phase by Phase</h2>
+    <p>The project was built incrementally across 6 phases, each adding a complete layer of production functionality.</p>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <strong>Phase 1 — Foundation</strong>
+        <p>Project scaffold, Postgres schema (tasks, transactions, anomalies, audit_log, escalations, policies), async DB connection pool, Pydantic models, FastAPI app skeleton.</p>
+      </div>
+      <div class="tl-item">
+        <strong>Phase 2 — The Agent</strong>
+        <p>LLM adapter (Ollama + OpenAI), tool registry with 4 real SQL-backed tools, core agent reasoning loop, RAG pipeline with pgvector, 5,000 seeded transactions across 50 accounts.</p>
+      </div>
+      <div class="tl-item">
+        <strong>Phase 3 — Guardrails &amp; Anti-Hallucination</strong>
+        <p>Python pre-analyzer (4 deterministic rules), tool allowlist, rate limiter, PII scrubber, Pydantic output validator, auto-escalation handler. All 5 layers integrated into the agent loop.</p>
+      </div>
+      <div class="tl-item">
+        <strong>Phase 4 — Async Event Streaming</strong>
+        <p>Redis Streams producer/consumer, background worker process, API decoupled to return immediately, consumer groups for fault tolerance.</p>
+      </div>
+      <div class="tl-item">
+        <strong>Phase 5 — Observability</strong>
+        <p>Structured JSON logging throughout, DB-backed Prometheus metrics (cross-process safe), server-rendered HTML dashboard with auto-refresh.</p>
+      </div>
+      <div class="tl-item">
+        <strong>Phase 6 — Testing &amp; Docker</strong>
+        <p>71 pytest tests (unit + integration), multi-stage Dockerfile with non-root user, docker-compose with 4 services and health checks, Makefile convenience targets.</p>
+      </div>
+    </div>
+
+    <div class="alert alert-warn" style="margin-top:16px;">
+      <p>🔮 <strong>Possible next phases:</strong> API key authentication, GitHub Actions CI/CD, HTTPS reverse proxy (Caddy), OpenAI production switch, Grafana dashboard.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Financial Compliance Agent System &nbsp;·&nbsp; Built with Python 3.14, FastAPI, PostgreSQL, Redis, and Docker</p>
+  <p style="margin-top:8px; font-size:12px;">Open <a href="http://localhost:8000/dashboard" style="color:var(--accent)">http://localhost:8000/dashboard</a> to see the live dashboard</p>
+</footer>
+
+<script>
+  // Highlight nav link on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`nav a[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

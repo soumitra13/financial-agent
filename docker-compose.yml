@@ -1,0 +1,108 @@
+services:
+
+  # ── Postgres + pgvector ──────────────────────────────────────────────────────
+  postgres:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: agent
+      POSTGRES_PASSWORD: agent
+      POSTGRES_DB: financial_agent
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Apply schema on first start
+      - ./infrastructure/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    ports:
+      - "5433:5432"   # host port 5433 to avoid conflicting with local Postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent -d financial_agent"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # ── Redis ────────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6380:6379"   # host port 6380 to avoid conflicting with local Redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ── API server ───────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      target: runtime
+    restart: unless-stopped
+    env_file: .env.docker
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health | grep -q ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    # Ollama on the host is reachable via host.docker.internal on Mac/Windows.
+    # On Linux, uncomment the line below:
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+
+  # ── Agent worker ─────────────────────────────────────────────────────────────
+  worker:
+    build:
+      context: .
+      target: runtime
+    restart: unless-stopped
+    command: ["python3", "-m", "src.events.worker"]
+    env_file: .env.docker
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+
+  # ── DB initialiser (runs once, seeds policies) ────────────────────────────────
+  # Run manually after first `docker compose up`:
+  #   docker compose run --rm seed
+  seed:
+    build:
+      context: .
+      target: runtime
+    command: ["python3", "scripts/seed_data.py"]
+    env_file: .env.docker
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - seed   # only runs when explicitly requested: docker compose --profile seed run seed
+
+volumes:
+  postgres_data:
+  redis_data:

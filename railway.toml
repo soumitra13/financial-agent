@@ -1,0 +1,19 @@
+# railway.toml — Railway deployment configuration
+# Two services share the same Docker image but use different start commands.
+# Create both services in the Railway dashboard pointing to this repo,
+# then set the startCommand override for each in their Settings tab.
+#
+#   api    → python3 -m uvicorn src.api.main:app --host 0.0.0.0 --port $PORT
+#   worker → python3 -m src.events.worker
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+# Default service = API. Override startCommand in Railway UI for the worker.
+startCommand = "python3 -m uvicorn src.api.main:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
