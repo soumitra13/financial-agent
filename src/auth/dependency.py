@@ -25,7 +25,14 @@ async def require_api_key(request: Request) -> dict:
     Reads directly from request headers — works correctly at router level.
     Raises 401 if missing, 403 if invalid or revoked.
     Returns the key record on success.
+
+    OPTIONS requests (CORS preflight) are passed through without auth
+    so the CORS middleware can respond correctly to the browser.
     """
+    # CORS preflight — let the CORS middleware handle it, no auth needed
+    if request.method == "OPTIONS":
+        return {}
+
     raw_key = request.headers.get("X-API-Key") or request.headers.get("x-api-key")
 
     if not raw_key:
