@@ -117,3 +117,13 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+
+
+if __name__ == "__main__":
+    import os
+    import uvicorn
+
+    # Railway (and other PaaS) injects PORT as an env var.
+    # Reading it here avoids shell-expansion issues with exec-form Docker CMD.
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("src.api.main:app", host="0.0.0.0", port=port, log_level="info")

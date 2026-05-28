@@ -12,7 +12,7 @@ dockerfilePath = "Dockerfile"
 
 [deploy]
 # Default service = API. Override startCommand in Railway UI for the worker.
-startCommand = "python3 -m uvicorn src.api.main:app --host 0.0.0.0 --port $PORT"
+startCommand = "python3 src/api/main.py"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
