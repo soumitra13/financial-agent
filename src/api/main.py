@@ -85,23 +85,26 @@ def create_app() -> FastAPI:
 
     # ── CORS ─────────────────────────────────────────────────────────────────
     # Development: allow all origins (local UI dev)
-    # Production: allow only the origins listed in CORS_ORIGINS env var
+    # Production: allow origins from CORS_ORIGINS env var, or all if not set
     if settings.environment == "development":
         cors_origins = ["*"]
+        cors_origin_regex = None
+    elif settings.cors_origins:
+        # Strip trailing slashes so https://foo.vercel.app/ and https://foo.vercel.app both match
+        cors_origins = [o.strip().rstrip("/") for o in settings.cors_origins.split(",") if o.strip()]
+        cors_origin_regex = None
     else:
-        cors_origins = (
-            [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
-            if settings.cors_origins
-            else []
-        )
+        # No CORS_ORIGINS set in production — allow all (open API)
+        cors_origins = ["*"]
+        cors_origin_regex = None
 
-    if cors_origins:
-        app.add_middleware(
-            CORSMiddleware,
-            allow_origins=cors_origins,
-            allow_methods=["*"],
-            allow_headers=["*"],
-        )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cors_origins,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        allow_credentials=False,
+    )
 
     # ── Routers ───────────────────────────────────────────────────────────────
     # Public routes (no auth required)
