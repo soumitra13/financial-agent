@@ -36,5 +36,7 @@ except Exception:
     sleep $RETRY_INTERVAL
 done
 
-# Execute the CMD passed to the container (API server or worker)
-exec "$@"
+# Execute the CMD passed to the container (API server or worker).
+# Use /bin/sh -c so environment variables like $PORT are expanded before
+# being passed to the process (exec "$@" skips shell expansion).
+exec /bin/sh -c "$*"
