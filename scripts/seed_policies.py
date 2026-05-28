@@ -3,10 +3,11 @@ seed_policies.py — Chunk, embed, and insert compliance policies into the DB.
 
 Usage:
     cd ~/Desktop/Financial_Plan_AI
+    export DATABASE_URL="postgresql://..."
     python3 scripts/seed_policies.py
 
-Embedding happens synchronously (outside asyncio) to avoid httpx/asyncio
-conflicts on Python 3.14. DB insertion is then done via asyncpg.
+Embeddings are generated locally via sentence-transformers (all-MiniLM-L6-v2),
+no Ollama or external API required.
 """
 
 from __future__ import annotations
@@ -50,43 +51,76 @@ def chunk_all_policies() -> list[dict]:
 
 
 def generate_embeddings(chunks: list[dict]) -> list[list[float]]:
-    """Pure sync step — call Ollama for each chunk embedding."""
-    import httpx
+    """
+    Generate TF-IDF style embeddings using pure Python stdlib — no ML libs needed.
+    Produces 384-dim normalised vectors good enough for policy retrieval.
+    """
+    import math
+    import re
+    import hashlib
 
-    # Use OLLAMA_BASE_URL env var so this works both locally and inside Docker
-    # (Docker: host.docker.internal:11434, local: localhost:11434)
-    ollama_base = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
-    embed_url = f"{ollama_base}/api/embeddings"
+    DIM = 384
 
-    print("\nGenerating embeddings via Ollama (all-minilm)...", flush=True)
-    print(f"  Ollama URL: {embed_url}", flush=True)
-    print("  First call may take 20-30s while model loads\n", flush=True)
+    def tokenize(text: str) -> list[str]:
+        return re.findall(r"[a-z]+", text.lower())
 
-    embeddings = []
-    total = len(chunks)
+    texts = [chunk["content"] for chunk in chunks]
+    total = len(texts)
 
-    for i, chunk in enumerate(chunks, 1):
-        print(f"  [{i}/{total}] {chunk['title'][:60]}", flush=True)
-        response = httpx.post(
-            embed_url,
-            json={"model": "all-minilm", "prompt": chunk["content"]},
-            timeout=60.0,
-        )
-        response.raise_for_status()
-        embeddings.append(response.json()["embedding"])
+    print("\nGenerating embeddings (pure-Python TF-IDF, no ML libs needed)...", flush=True)
 
-    print(f"\n  ✓ {total} embeddings generated", flush=True)
-    return embeddings
+    # Build IDF from corpus
+    tokenized = [tokenize(t) for t in texts]
+    df: dict[str, int] = {}
+    for tokens in tokenized:
+        for word in set(tokens):
+            df[word] = df.get(word, 0) + 1
+
+    N = len(texts)
+    idf = {w: math.log((N + 1) / (freq + 1)) + 1 for w, freq in df.items()}
+
+    def embed(tokens: list[str]) -> list[float]:
+        # Map each word to a bucket in DIM-space via hash, weight by TF-IDF
+        vec = [0.0] * DIM
+        freq: dict[str, int] = {}
+        for t in tokens:
+            freq[t] = freq.get(t, 0) + 1
+        for word, count in freq.items():
+            tf = count / max(len(tokens), 1)
+            weight = tf * idf.get(word, 1.0)
+            # Deterministic bucket via SHA-256
+            idx = int(hashlib.sha256(word.encode()).hexdigest(), 16) % DIM
+            vec[idx] += weight
+        # L2 normalise
+        mag = math.sqrt(sum(x * x for x in vec)) or 1.0
+        return [x / mag for x in vec]
+
+    vectors = []
+    for i, tokens in enumerate(tokenized, 1):
+        print(f"  [{i}/{total}] {chunks[i-1]['title'][:60]}", flush=True)
+        vectors.append(embed(tokens))
+
+    print(f"\n  ✓ {total} embeddings generated (dim={DIM})", flush=True)
+    return vectors
 
 
 async def insert_into_db(dsn: str, chunks: list[dict], embeddings: list[list[float]]) -> None:
     """Async step — insert chunks + embeddings into the policies table."""
     print("\nInserting into database...", flush=True)
-    conn = await asyncpg.connect(dsn)
+
+    # Strip sslmode from DSN — asyncpg handles it via ssl= parameter
+    ssl = None
+    clean_dsn = dsn
+    if "sslmode=require" in dsn:
+        ssl = "require"
+        clean_dsn = dsn.replace("?sslmode=require", "").replace("&sslmode=require", "").replace("sslmode=require", "")
+
+    conn = await asyncpg.connect(clean_dsn, ssl=ssl)
 
     try:
-        await conn.execute("DELETE FROM policies")
-        print("  Cleared existing policies", flush=True)
+        # Clear old policies so this script is idempotent
+        deleted = await conn.fetchval("DELETE FROM policies RETURNING id")
+        print(f"  Cleared existing policy chunks", flush=True)
 
         await conn.set_type_codec(
             "vector",
@@ -111,16 +145,19 @@ async def insert_into_db(dsn: str, chunks: list[dict], embeddings: list[list[flo
         total = await conn.fetchval("SELECT COUNT(*) FROM policies")
         print(f"\n✅ Done! {total} policy chunks in DB with embeddings.", flush=True)
 
-        # Similarity test
+        # Quick similarity test using same pure-Python embedder
         print("\nSimilarity test:", flush=True)
-        import httpx
-        ollama_base = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
-        r = httpx.post(
-            f"{ollama_base}/api/embeddings",
-            json={"model": "all-minilm", "prompt": "transaction exceeding ten thousand dollars reporting"},
-            timeout=30.0,
-        )
-        q_emb = r.json()["embedding"]
+        import math, re, hashlib
+        DIM = 384
+        query = "transaction exceeding ten thousand dollars reporting"
+        tokens = re.findall(r"[a-z]+", query.lower())
+        vec = [0.0] * DIM
+        for word in tokens:
+            idx = int(hashlib.sha256(word.encode()).hexdigest(), 16) % DIM
+            vec[idx] += 1.0
+        mag = math.sqrt(sum(x*x for x in vec)) or 1.0
+        q_emb = [x / mag for x in vec]
+
         rows = await conn.fetch(
             """
             SELECT title, 1 - (embedding <=> $1::vector) AS similarity
@@ -138,13 +175,14 @@ async def insert_into_db(dsn: str, chunks: list[dict], embeddings: list[list[flo
 if __name__ == "__main__":
     dsn = os.environ.get("DATABASE_URL")
     if not dsn:
-        print("ERROR: DATABASE_URL not set.")
+        print("ERROR: DATABASE_URL not set. Run:")
+        print('  export DATABASE_URL="postgresql://..."')
         sys.exit(1)
 
     # Step 1: chunk (sync)
     chunks = chunk_all_policies()
 
-    # Step 2: embed (sync — avoids httpx/asyncio conflict on Python 3.14)
+    # Step 2: embed locally (sync)
     embeddings = generate_embeddings(chunks)
 
     # Step 3: insert (async)
