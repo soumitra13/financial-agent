@@ -83,11 +83,22 @@ def create_app() -> FastAPI:
         redoc_url="/redoc",
     )
 
-    # ── CORS (open for local dev) ─────────────────────────────────────────────
+    # ── CORS ─────────────────────────────────────────────────────────────────
+    # Development: allow all origins (local UI dev)
+    # Production: allow only the origins listed in CORS_ORIGINS env var
     if settings.environment == "development":
+        cors_origins = ["*"]
+    else:
+        cors_origins = (
+            [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
+            if settings.cors_origins
+            else []
+        )
+
+    if cors_origins:
         app.add_middleware(
             CORSMiddleware,
-            allow_origins=["*"],
+            allow_origins=cors_origins,
             allow_methods=["*"],
             allow_headers=["*"],
         )

@@ -49,6 +49,11 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     log_format: str = "json"
 
+    # ── CORS ──────────────────────────────────────────────────────────────────
+    # Comma-separated list of allowed origins for production.
+    # Example: https://my-app.vercel.app,https://my-custom-domain.com
+    cors_origins: str = ""
+
     # ── Environment ───────────────────────────────────────────────────────────
     environment: str = "development"
 
