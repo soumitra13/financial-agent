@@ -84,26 +84,13 @@ def create_app() -> FastAPI:
     )
 
     # ── CORS ─────────────────────────────────────────────────────────────────
-    # Development: allow all origins (local UI dev)
-    # Production: allow origins from CORS_ORIGINS env var, or all if not set
-    if settings.environment == "development":
-        cors_origins = ["*"]
-        cors_origin_regex = None
-    elif settings.cors_origins:
-        # Strip trailing slashes so https://foo.vercel.app/ and https://foo.vercel.app both match
-        cors_origins = [o.strip().rstrip("/") for o in settings.cors_origins.split(",") if o.strip()]
-        cors_origin_regex = None
-    else:
-        # No CORS_ORIGINS set in production — allow all (open API)
-        cors_origins = ["*"]
-        cors_origin_regex = None
-
+    # Allow all origins — auth is handled via X-API-Key header, not cookies,
+    # so wildcard CORS is safe and avoids preflight origin-matching issues.
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=cors_origins,
+        allow_origins=["*"],
         allow_methods=["*"],
         allow_headers=["*"],
-        allow_credentials=False,
     )
 
     # ── Routers ───────────────────────────────────────────────────────────────
@@ -138,6 +125,7 @@ if __name__ == "__main__":
     import uvicorn
 
     # Railway (and other PaaS) injects PORT as an env var.
-    # Reading it here avoids shell-expansion issues with exec-form Docker CMD.
+    # Pass the app object (not a string) to avoid uvicorn re-importing the module
+    # and running create_app() a second time.
     port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("src.api.main:app", host="0.0.0.0", port=port, log_level="info")
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
