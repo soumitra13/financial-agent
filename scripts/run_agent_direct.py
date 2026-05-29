@@ -18,6 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 import asyncpg
@@ -76,7 +77,7 @@ async def main():
     print("=" * 60)
 
     # 5. Run the agent loop directly
-    from src.db.connection import init_pool, close_pool
+    from src.db.connection import close_pool, init_pool
     await init_pool()
     try:
         from src.agent.loop import run_agent

@@ -9,11 +9,10 @@ Fixtures:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import pytest
-
 
 # ── Transaction fixtures ───────────────────────────────────────────────────────
 
@@ -26,7 +25,7 @@ def _tx(
 ) -> dict[str, Any]:
     """Build a minimal transaction dict matching the DB schema."""
     if created_at is None:
-        created_at = datetime(2026, 3, 1, 12, 0, 0, tzinfo=timezone.utc)
+        created_at = datetime(2026, 3, 1, 12, 0, 0, tzinfo=UTC)
     return {
         "id": tx_id,
         "amount": amount,
@@ -81,7 +80,7 @@ def large_amount_transactions() -> list[dict[str, Any]]:
 @pytest.fixture
 def velocity_transactions() -> list[dict[str, Any]]:
     """Six transactions within a 24-hour window (threshold is 5)."""
-    base = datetime(2026, 3, 19, 0, 0, 0, tzinfo=timezone.utc)
+    base = datetime(2026, 3, 19, 0, 0, 0, tzinfo=UTC)
     return [
         _tx(f"vel-000{i}-0000-0000-000000000{i:03d}",
             amount=100.00 + i,
@@ -109,6 +108,7 @@ def api_client():
     Unit-level API tests (health, metrics shape) work without it.
     """
     from fastapi.testclient import TestClient
+
     from src.api.main import app
     with TestClient(app, raise_server_exceptions=False) as client:
         yield client

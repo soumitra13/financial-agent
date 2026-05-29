@@ -21,9 +21,6 @@ Metrics exposed:
 
 from __future__ import annotations
 
-import time
-from typing import Any
-
 
 async def generate_metrics() -> str:
     """

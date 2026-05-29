@@ -8,8 +8,8 @@ Limits are intentionally conservative for a compliance agent.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from src.guardrails.allowlist import GuardrailViolation
 
+from src.guardrails.allowlist import GuardrailViolation
 
 # ── Configurable limits ───────────────────────────────────────────────────────
 

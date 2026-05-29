@@ -6,7 +6,6 @@ Target chunk size: ~200 tokens (~800 chars) with 50-char overlap.
 
 from __future__ import annotations
 
-
 CHUNK_SIZE = 800    # characters
 OVERLAP = 100       # characters
 

@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import pytest
 
-
 # ══════════════════════════════════════════════════════════════════════════════
 # Allowlist (read-before-write ordering)
 # ══════════════════════════════════════════════════════════════════════════════
@@ -53,7 +52,6 @@ class TestRateLimiter:
         self.rl = RateLimiter()
 
     def test_within_limit_allowed(self):
-        from src.guardrails.allowlist import GuardrailViolation
         # flag_anomaly limit = 5; first 5 calls should pass
         for _ in range(5):
             self.rl.check("flag_anomaly")

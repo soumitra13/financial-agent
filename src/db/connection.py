@@ -17,8 +17,8 @@ Shutdown:
 from __future__ import annotations
 
 import logging
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 import asyncpg
 from asyncpg import Connection, Pool

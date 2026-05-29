@@ -4,10 +4,15 @@ check_task.py — Full diagnostic: DB tasks + audit log + Redis stream state.
 Usage:
     python3 scripts/check_task.py
 """
-import asyncio, os, sys, json
+import asyncio
+import json
+import os
+import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from dotenv import load_dotenv
+
 load_dotenv()
 import asyncpg
 import redis as redis_lib

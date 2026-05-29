@@ -19,7 +19,6 @@ from __future__ import annotations
 import json
 import logging
 import sys
-import time
 from typing import Any
 
 
@@ -68,7 +67,7 @@ def configure_logging(level: str = "INFO") -> None:
         logging.getLogger(noisy).setLevel(logging.WARNING)
 
 
-def get_logger(name: str) -> "BoundLogger":
+def get_logger(name: str) -> BoundLogger:
     """Return a logger that supports keyword-argument structured fields."""
     return BoundLogger(logging.getLogger(name))
 

@@ -34,6 +34,7 @@ def get_high_risk_account() -> dict:
     Falls back to highest risk_score if none found.
     """
     import asyncio
+
     import asyncpg
 
     dsn = os.environ.get("DATABASE_URL")

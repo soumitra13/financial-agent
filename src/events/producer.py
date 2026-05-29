@@ -10,7 +10,6 @@ The stream is capped at 10,000 entries (MAXLEN) to avoid unbounded growth.
 
 from __future__ import annotations
 
-import json
 from uuid import UUID
 
 import redis

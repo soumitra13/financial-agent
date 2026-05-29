@@ -83,7 +83,7 @@ class GroqAdapter:
             print(f"    [groq] HTTP {e.response.status_code} — {body}", flush=True)
             raise RuntimeError(f"Groq API error {e.response.status_code}: {body}") from e
 
-        print(f"    [groq] response received", flush=True)
+        print("    [groq] response received", flush=True)
         data = response.json()
 
         choice = data.get("choices", [{}])[0]

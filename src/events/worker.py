@@ -20,9 +20,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
-from src.observability.logging import configure_logging, get_logger
+from src.observability.logging import configure_logging, get_logger  # noqa: E402
+
 configure_logging()
 log = get_logger(__name__)
 
@@ -40,7 +42,7 @@ async def main() -> None:
 
     # Quick Redis connectivity check
     try:
-        from src.events.producer import get_redis, STREAM_PENDING, CONSUMER_GROUP
+        from src.events.producer import CONSUMER_GROUP, STREAM_PENDING, get_redis
         r = get_redis()
         r.ping()
         log.info("redis_connected", stream=STREAM_PENDING, group=CONSUMER_GROUP)

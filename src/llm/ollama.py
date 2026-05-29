@@ -69,7 +69,7 @@ class OllamaAdapter:
         print(f"    [ollama] calling {self.model}...", flush=True)
         loop = asyncio.get_running_loop()
         data = await loop.run_in_executor(_executor, _sync_chat, self.base_url, payload)
-        print(f"    [ollama] response received", flush=True)
+        print("    [ollama] response received", flush=True)
 
         message = data.get("message", {})
         content = message.get("content") or None

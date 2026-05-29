@@ -7,27 +7,24 @@ All tests are pure Python — no DB, no network, no LLM.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone, timedelta
-from statistics import median
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
 from src.agent.pre_analyzer import (
+    HIGH_RISK_COUNTRIES,
+    STRUCTURING_HIGH,
+    STRUCTURING_LOW,
+    VELOCITY_THRESHOLD,
     analyze_transactions,
     build_findings_context,
-    HIGH_RISK_COUNTRIES,
-    STRUCTURING_LOW,
-    STRUCTURING_HIGH,
-    VELOCITY_THRESHOLD,
-    LARGE_AMOUNT_MULTIPLIER,
 )
-
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
 def _tx(tx_id, amount, country_code="US", created_at=None):
     if created_at is None:
-        created_at = datetime(2026, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
+        created_at = datetime(2026, 1, 1, 12, 0, 0, tzinfo=UTC)
     return {
         "id": tx_id,
         "amount": amount,
@@ -181,7 +178,7 @@ def test_large_amount_evidence_shows_multiple():
 # ── Velocity rule ──────────────────────────────────────────────────────────────
 
 def test_velocity_above_threshold():
-    base = datetime(2026, 3, 19, 0, 0, 0, tzinfo=timezone.utc)
+    base = datetime(2026, 3, 19, 0, 0, 0, tzinfo=UTC)
     txns = [
         _tx(f"vel-{i:03d}", 100.00, created_at=base + timedelta(hours=i))
         for i in range(VELOCITY_THRESHOLD + 1)   # one more than threshold
@@ -192,7 +189,7 @@ def test_velocity_above_threshold():
 
 
 def test_velocity_exactly_at_threshold_not_flagged():
-    base = datetime(2026, 3, 19, 0, 0, 0, tzinfo=timezone.utc)
+    base = datetime(2026, 3, 19, 0, 0, 0, tzinfo=UTC)
     txns = [
         _tx(f"vel-{i:03d}", 100.00, created_at=base + timedelta(hours=i))
         for i in range(VELOCITY_THRESHOLD)   # exactly at threshold, not above
@@ -203,7 +200,7 @@ def test_velocity_exactly_at_threshold_not_flagged():
 
 
 def test_velocity_spread_over_multiple_days_not_flagged():
-    base = datetime(2026, 3, 1, 0, 0, 0, tzinfo=timezone.utc)
+    base = datetime(2026, 3, 1, 0, 0, 0, tzinfo=UTC)
     txns = [
         _tx(f"vel-{i:03d}", 100.00, created_at=base + timedelta(days=i))
         for i in range(VELOCITY_THRESHOLD + 1)

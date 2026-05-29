@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from uuid import UUID
 
 from pydantic import BaseModel, Field
 
 
-class AnomalyType(str, Enum):
+class AnomalyType(StrEnum):
     VELOCITY = "velocity"
     STRUCTURING = "structuring"
     GEOGRAPHIC = "geographic"
@@ -17,7 +17,7 @@ class AnomalyType(str, Enum):
     OUT_OF_PATTERN = "out_of_pattern"
 
 
-class Severity(str, Enum):
+class Severity(StrEnum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"

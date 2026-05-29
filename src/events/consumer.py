@@ -15,7 +15,6 @@ Consumer name  : set per process (worker-{pid})
 from __future__ import annotations
 
 import asyncio
-import json
 import os
 import time
 from uuid import UUID
@@ -43,7 +42,6 @@ def _consumer_name() -> str:
 async def process_message(message_id: str, payload: dict) -> None:
     """Run the agent for one stream message."""
     from src.agent.loop import run_agent
-    from src.db.connection import init_pool, get_connection
 
     task_id_str = payload.get("task_id", "")
     description = payload.get("description", "")
@@ -84,7 +82,7 @@ async def run_consumer() -> None:
     Main consumer loop. Runs until the process is killed.
     Uses asyncio for the agent loop, sync redis for stream ops.
     """
-    from src.db.connection import init_pool, close_pool
+    from src.db.connection import init_pool
     await init_pool()
 
     r = get_redis()
@@ -100,7 +98,7 @@ async def run_consumer() -> None:
         print(f"[consumer] Created consumer group '{CONSUMER_GROUP}'", flush=True)
     except redis.exceptions.ResponseError as e:
         if "BUSYGROUP" in str(e):
-            print(f"[consumer] Consumer group already exists — OK", flush=True)
+            print("[consumer] Consumer group already exists — OK", flush=True)
         else:
             raise
 

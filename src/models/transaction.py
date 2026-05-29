@@ -3,25 +3,25 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
-class AccountType(str, Enum):
+class AccountType(StrEnum):
     CHECKING = "checking"
     SAVINGS = "savings"
     CREDIT = "credit"
 
 
-class AccountStatus(str, Enum):
+class AccountStatus(StrEnum):
     ACTIVE = "active"
     FROZEN = "frozen"
     CLOSED = "closed"
 
 
-class TransactionDirection(str, Enum):
+class TransactionDirection(StrEnum):
     DEBIT = "debit"
     CREDIT = "credit"
 

@@ -7,8 +7,8 @@ Usage:
     If no account_id is given, uses the highest risk_score account.
 """
 from __future__ import annotations
+
 import asyncio
-import json
 import os
 import sys
 from pathlib import Path
@@ -17,6 +17,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from dotenv import load_dotenv; load_dotenv()
 
 import asyncpg
+
 from src.agent.pre_analyzer import analyze_transactions, build_findings_context
 
 

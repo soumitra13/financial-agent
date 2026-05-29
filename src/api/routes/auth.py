@@ -16,8 +16,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
-from src.auth.dependency import require_api_key
 from src.auth import keys as key_svc
+from src.auth.dependency import require_api_key
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

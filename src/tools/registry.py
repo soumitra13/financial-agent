@@ -11,13 +11,17 @@ Each tool has:
 
 from __future__ import annotations
 
-from typing import Any, Callable, Coroutine
+from collections.abc import Callable, Coroutine
+from typing import Any
 
-from src.tools.transactions import get_account_transactions, get_account_profile, search_similar_transactions
 from src.tools.anomaly import flag_anomaly
 from src.tools.customer import draft_customer_explanation
 from src.tools.policy import check_policy_compliance
-
+from src.tools.transactions import (
+    get_account_profile,
+    get_account_transactions,
+    search_similar_transactions,
+)
 
 # ── Tool definitions (sent to the LLM) ───────────────────────────────────────
 

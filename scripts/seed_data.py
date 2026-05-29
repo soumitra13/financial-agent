@@ -21,13 +21,14 @@ import asyncio
 import os
 import random
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 import asyncpg
@@ -198,7 +199,7 @@ async def seed(dsn: str) -> None:
         print(f"  ✓ {len(account_ids)} accounts created")
 
         # Generate normal transactions
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         print(f"Generating {NUM_TRANSACTIONS} normal transactions...")
         normal_txns = []
         per_account = NUM_TRANSACTIONS // NUM_ACCOUNTS
@@ -241,7 +242,7 @@ async def seed(dsn: str) -> None:
             "SELECT COUNT(*) FROM transactions WHERE country_code = ANY($1)",
             HIGH_RISK_COUNTRIES,
         )
-        print(f"\n✅ Seed complete!")
+        print("\n✅ Seed complete!")
         print(f"   Accounts:              {total_accts}")
         print(f"   Transactions:          {total_txns}")
         print(f"   High-risk country txns:{high_risk}")

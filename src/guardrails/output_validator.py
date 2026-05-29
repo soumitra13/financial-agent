@@ -23,7 +23,6 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-
 # ── Sub-models ────────────────────────────────────────────────────────────────
 
 class AnomalyRecord(BaseModel):
@@ -45,7 +44,7 @@ class AgentOutput(BaseModel):
     escalation_reason: str | None = None
 
     @model_validator(mode="after")
-    def _sync_escalation_flag(self) -> "AgentOutput":
+    def _sync_escalation_flag(self) -> AgentOutput:
         """Auto-set requires_escalation=True if any anomaly is critical."""
         has_critical = any(a.severity == "critical" for a in self.anomalies_found)
         if has_critical and not self.requires_escalation:

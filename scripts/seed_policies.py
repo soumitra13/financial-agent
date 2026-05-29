@@ -20,6 +20,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 import asyncpg
@@ -55,9 +56,9 @@ def generate_embeddings(chunks: list[dict]) -> list[list[float]]:
     Generate TF-IDF style embeddings using pure Python stdlib — no ML libs needed.
     Produces 384-dim normalised vectors good enough for policy retrieval.
     """
+    import hashlib
     import math
     import re
-    import hashlib
 
     DIM = 384
 
@@ -120,7 +121,7 @@ async def insert_into_db(dsn: str, chunks: list[dict], embeddings: list[list[flo
     try:
         # Clear old policies so this script is idempotent
         deleted = await conn.fetchval("DELETE FROM policies RETURNING id")
-        print(f"  Cleared existing policy chunks", flush=True)
+        print("  Cleared existing policy chunks", flush=True)
 
         await conn.set_type_codec(
             "vector",
@@ -147,7 +148,9 @@ async def insert_into_db(dsn: str, chunks: list[dict], embeddings: list[list[flo
 
         # Quick similarity test using same pure-Python embedder
         print("\nSimilarity test:", flush=True)
-        import math, re, hashlib
+        import hashlib
+        import math
+        import re
         DIM = 384
         query = "transaction exceeding ten thousand dollars reporting"
         tokens = re.findall(r"[a-z]+", query.lower())

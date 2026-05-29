@@ -15,7 +15,6 @@ Usage:
 
 from __future__ import annotations
 
-
 # Tools the agent is allowed to call at all
 ALLOWED_TOOLS: frozenset[str] = frozenset({
     "get_account_transactions",

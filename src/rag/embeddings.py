@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import httpx
 
-
 OLLAMA_EMBED_URL = "http://localhost:11434/api/embeddings"
 EMBED_MODEL = "all-minilm"
 DIMENSIONS = 384

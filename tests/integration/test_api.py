@@ -12,8 +12,8 @@ Markers:
 from __future__ import annotations
 
 import os
-import pytest
 
+import pytest
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
@@ -25,6 +25,7 @@ def client():
     Injects the test API key header so protected routes don't return 401.
     """
     from fastapi.testclient import TestClient
+
     from src.api.main import app
     # CI sets API_KEY=test-key in the workflow env
     api_key = os.environ.get("API_KEY", "test-key")

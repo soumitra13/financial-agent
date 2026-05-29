@@ -15,8 +15,7 @@ Rules implemented:
 
 from __future__ import annotations
 
-from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from statistics import median
 from typing import Any
 
@@ -53,7 +52,7 @@ def analyze_transactions(transactions: list[dict[str, Any]]) -> list[dict[str, A
             if isinstance(ts_raw, str):
                 ts = datetime.fromisoformat(ts_raw.replace("Z", "+00:00"))
             elif isinstance(ts_raw, datetime):
-                ts = ts_raw if ts_raw.tzinfo else ts_raw.replace(tzinfo=timezone.utc)
+                ts = ts_raw if ts_raw.tzinfo else ts_raw.replace(tzinfo=UTC)
             else:
                 ts = None
         except (ValueError, TypeError):
@@ -67,7 +66,6 @@ def analyze_transactions(transactions: list[dict[str, Any]]) -> list[dict[str, A
                    tx.get("destination_country") or
                    tx.get("merchant_country") or
                    tx.get("country") or "")
-        tx_type = tx.get("category") or tx.get("transaction_type") or tx.get("type") or ""
 
         # ── Structuring ────────────────────────────────────────────────────────
         if STRUCTURING_LOW <= amount <= STRUCTURING_HIGH and tx_id not in seen_ids:

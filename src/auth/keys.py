@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import hashlib
 import secrets
-from datetime import datetime, timezone
 from uuid import UUID
 
 from src.db.connection import get_connection

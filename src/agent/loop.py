@@ -14,7 +14,6 @@ Anti-hallucination techniques applied:
 
 from __future__ import annotations
 
-import asyncio
 import json
 import time
 from typing import Any
@@ -339,8 +338,6 @@ async def run_agent(
         return final_result
 
     except Exception as exc:
-        import traceback
-        tb = traceback.format_exc()
         log.exception("task_failed", task_id=str(task_id), steps=step, error=repr(exc))
         error_result = {"error": repr(exc), "summary": "Agent loop failed"}
         await _update_task_status(task_id, "failed", result=error_result, total_steps=step)

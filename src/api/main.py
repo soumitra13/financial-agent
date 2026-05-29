@@ -8,15 +8,15 @@ Lifespan:
 
 from __future__ import annotations
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
-from src.api.routes import health, tasks, dashboard
 from src.api.routes import auth as auth_routes
+from src.api.routes import dashboard, health, tasks
 from src.auth import keys as key_svc
 from src.config import get_settings
 from src.db.connection import close_pool, init_pool
@@ -69,8 +69,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 def create_app() -> FastAPI:
-    settings = get_settings()
-
     app = FastAPI(
         title="Financial Agent System",
         description=(
@@ -99,8 +97,9 @@ def create_app() -> FastAPI:
     app.include_router(dashboard.router)
 
     # Protected routes (require X-API-Key header)
-    from src.auth.dependency import require_api_key
     from fastapi import Depends
+
+    from src.auth.dependency import require_api_key
     app.include_router(tasks.router, dependencies=[Depends(require_api_key)])
     app.include_router(auth_routes.router, dependencies=[Depends(require_api_key)])
 
@@ -122,6 +121,7 @@ app = create_app()
 
 if __name__ == "__main__":
     import os
+
     import uvicorn
 
     # Railway (and other PaaS) injects PORT as an env var.

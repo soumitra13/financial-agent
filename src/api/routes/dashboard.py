@@ -7,7 +7,6 @@ Auto-refreshes every 30 seconds. No JS framework, no build step.
 
 from __future__ import annotations
 
-import json
 from typing import Any
 
 from fastapi import APIRouter

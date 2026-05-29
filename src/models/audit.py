@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel
 
 
-class ActionType(str, Enum):
+class ActionType(StrEnum):
     LLM_CALL = "llm_call"
     TOOL_CALL = "tool_call"
     GUARDRAIL_CHECK = "guardrail_check"
