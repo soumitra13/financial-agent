@@ -22,10 +22,17 @@ def client():
     """
     Module-scoped TestClient — starts the app once for all tests in this file.
     Uses raise_server_exceptions=False so 500s return responses instead of crashing.
+    Injects the test API key header so protected routes don't return 401.
     """
     from fastapi.testclient import TestClient
     from src.api.main import app
-    with TestClient(app, raise_server_exceptions=False) as c:
+    # CI sets API_KEY=test-key in the workflow env
+    api_key = os.environ.get("API_KEY", "test-key")
+    with TestClient(
+        app,
+        raise_server_exceptions=False,
+        headers={"X-API-Key": api_key},
+    ) as c:
         yield c
 
 
