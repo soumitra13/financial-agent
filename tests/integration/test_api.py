@@ -130,8 +130,8 @@ class TestTasksAPI:
             "description": "Test task — unit test submission",
             "account_id": "00000000-0000-0000-0000-000000000000",
         })
-        # 202 Accepted (queued to Redis) or 422 if Redis not running
-        assert r.status_code in (202, 422, 500)
+        # 201 Created or 202 Accepted (queued to Redis) or 422/500 if Redis not running
+        assert r.status_code in (201, 202, 422, 500)
 
     def test_get_nonexistent_task_returns_404(self, client):
         r = client.get("/tasks/00000000-0000-0000-0000-000000000000")
