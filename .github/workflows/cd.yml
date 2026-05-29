@@ -1,22 +1,31 @@
 name: CD
 
+# Trigger: runs only when the CI workflow completes on main.
+# If CI failed or was cancelled, all jobs below are skipped automatically.
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
     branches: [main]
 
-# Only run one deployment at a time — cancel any in-flight run if a new push arrives
+# Only one deployment at a time — cancel any in-flight run if a new push arrives.
 concurrency:
   group: deploy-production
   cancel-in-progress: true
 
 jobs:
-  # ── Gate: CI must pass before we deploy ─────────────────────────────────────
+  # ── Gate: skip everything if CI did not succeed ──────────────────────────────
   ci-gate:
-    name: Wait for CI
+    name: CI passed?
     runs-on: ubuntu-latest
+    # Skip this job (and everything that needs it) if CI didn't succeed.
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: CI already passed (this job only runs after push to main, which requires PR + CI)
-        run: echo "CI gate passed"
+      - name: CI succeeded — proceeding with deployment
+        run: |
+          echo "CI workflow '${{ github.event.workflow_run.name }}' passed."
+          echo "Commit : ${{ github.event.workflow_run.head_sha }}"
+          echo "Author : ${{ github.event.workflow_run.head_commit.author.name }}"
 
   # ── Deploy API to Railway ────────────────────────────────────────────────────
   deploy-api:
@@ -33,9 +42,11 @@ jobs:
       - name: Deploy API service
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
         run: |
           railway up \
-            --service "${{ secrets.RAILWAY_API_SERVICE_ID }}" \
+            --service "${{ secrets.RAILWAY_API_SERVICE }}" \
+            --environment production \
             --detach
 
   # ── Deploy Worker to Railway ─────────────────────────────────────────────────
@@ -53,9 +64,11 @@ jobs:
       - name: Deploy worker service
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
         run: |
           railway up \
-            --service "${{ secrets.RAILWAY_WORKER_SERVICE_ID }}" \
+            --service "${{ secrets.RAILWAY_WORKER_SERVICE }}" \
+            --environment production \
             --detach
 
   # ── Deploy Frontend to Vercel ────────────────────────────────────────────────
@@ -70,6 +83,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
 
       - name: Install Vercel CLI
         run: npm install -g vercel
@@ -95,5 +112,5 @@ jobs:
       - name: Print failure summary
         run: |
           echo "::error::Production deployment failed. Check the logs above."
-          echo "Commit: ${{ github.sha }}"
-          echo "Author: ${{ github.actor }}"
+          echo "Commit : ${{ github.event.workflow_run.head_sha }}"
+          echo "Author : ${{ github.event.workflow_run.head_commit.author.name }}"
