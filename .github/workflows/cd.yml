@@ -1,12 +1,13 @@
 name: CD
 
-# Trigger: runs only when the CI workflow completes on main.
+# Trigger: runs when CI completes on main, or manually from the Actions UI.
 # If CI failed or was cancelled, all jobs below are skipped automatically.
 on:
   workflow_run:
     workflows: ["CI"]
     types: [completed]
     branches: [main]
+  workflow_dispatch:  # allows manual trigger from GitHub Actions UI
 
 # Only one deployment at a time — cancel any in-flight run if a new push arrives.
 concurrency:
@@ -19,7 +20,9 @@ jobs:
     name: CI passed?
     runs-on: ubuntu-latest
     # Skip this job (and everything that needs it) if CI didn't succeed.
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # When triggered manually (workflow_dispatch) there is no workflow_run event,
+    # so we treat that as intentional and allow it through.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: CI succeeded — proceeding with deployment
         run: |
